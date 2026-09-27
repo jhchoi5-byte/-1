@@ -7,6 +7,17 @@
 
 static int checks = 0;
 static int failures = 0;
+typedef void (*SortFunction)(int[], int);
+
+static const struct {
+    const char *name;
+    SortFunction sort;
+} sorts[] = {
+    {"bubble", bubbleSort},
+    {"merge", mergeSort},
+    {"shell", shellSort},
+    {"library", librarySort},
+};
 
 static void printArray(const char *label, const int a[], int n) {
     printf("      %s:", label);
@@ -17,17 +28,23 @@ static void printArray(const char *label, const int a[], int n) {
 }
 
 /* input을 정렬한 결과가 want와 같은지 본다. */
-static void expectSorted(const char *name, int input[], const int want[], int n) {
-    checks++;
-    bubbleSort(input, n);
-    if (n > 0 && memcmp(input, want, (size_t)n * sizeof(int)) != 0) {
-        failures++;
-        printf("FAIL  %s\n", name);
-        printArray("got ", input, n);
-        printArray("want", want, n);
-        return;
+static void expectSorted(const char *name, const int input[], const int want[], int n) {
+    for (size_t i = 0; i < sizeof(sorts) / sizeof(sorts[0]); i++) {
+        int actual[n > 0 ? n : 1];
+        if (n > 0) {
+            memcpy(actual, input, (size_t)n * sizeof(int));
+        }
+        checks++;
+        sorts[i].sort(actual, n);
+        if (n > 0 && memcmp(actual, want, (size_t)n * sizeof(int)) != 0) {
+            failures++;
+            printf("FAIL  %s (%s sort)\n", name, sorts[i].name);
+            printArray("got ", actual, n);
+            printArray("want", want, n);
+            continue;
+        }
+        printf("ok    %s (%s sort)\n", name, sorts[i].name);
     }
-    printf("ok    %s\n", name);
 }
 
 int main(void) {
