@@ -1,8 +1,74 @@
 # algorithm-env
 
+## 정렬 알고리즘 비교 과제
+
+이 작업은 Shell Sort, Merge Sort, Library Sort의 동작과 성능을 C 구현 중심으로
+비교하는 알고리즘 과제입니다. Bubble Sort는 기존 예제 알고리즘으로 함께 구현되어
+있으며, benchmark 비교 대상은 Shell, Merge, Library Sort입니다. Python 구현과
+테스트도 제공하지만 C와 Python의 실행 시간은 직접 비교하지 않습니다.
+
+### 구현 및 파일 구성
+
+| 파일 | 역할 |
+| --- | --- |
+| `src/sort.h`, `src/sort.c` | C 정렬 함수 인터페이스와 Bubble, Merge, Shell, Library Sort 구현 |
+| `src/sort.py` | Python 정렬 알고리즘 구현 |
+| `src/main.c` | C 성능 benchmark, 입력 생성, correctness 확인, CSV 출력 |
+| `src/main.py` | 기존 Python 실행 및 Merge/Shell 비교 예제 |
+| `tests/test_sort.c` | C 정렬 함수 테스트 |
+| `tests/test_sort.py` | Python `unittest` 정렬 테스트 |
+| `Makefile` | C 빌드 및 C/Python 테스트 실행 명령 |
+| `results/library-sort-final.csv` | 최종 30-trial C benchmark 원자료 |
+
+Library Sort는 AI를 활용해 알고리즘 원리를 먼저 학습한 뒤, 빈 공간에 삽입하고
+필요할 때 재배치하는 원리를 보여주는 **deterministic educational variant**로
+구현했습니다. 이번 구현의 관측 결과를 randomized Library Sort를 포함한 Library
+Sort 전체의 성능이나 이론적 복잡도로 일반화하지 않습니다.
+
+### 개발 및 실험
+
+알고리즘 원리를 학습하고 구현한 다음, C와 Python unit test로 정렬 결과를 확인하고
+C benchmark pilot을 실행했습니다. pilot 측정값을 분석한 뒤 timer 경계를 함수 포인터
+호출만 포함하도록 정리하고 30-trial 최종 실험을 수행했습니다. 단계별 Git commit을
+가정하거나 기록한 것은 아닙니다.
+
+```sh
+make test
+make src/main.out
+./src/main.out > results/library-sort-final.csv
+```
+
+테스트 결과는 C **24 checks, 0 failures**, Python **6 tests 통과**입니다. 최종
+benchmark는 입력 크기 `500, 1000, 2000, 5000, 10000, 20000`과 네 입력 유형
+`random`, `already_sorted`, `reverse_sorted`, `duplicate_heavy`를 사용했습니다.
+각 `(input_size, distribution)` 조건은 30회 반복하고, 그 trial의 원본 입력을
+세 알고리즘에 동일하게 복사해 전달했습니다. `qsort()`로 만든 독립 정답과
+nondecreasing 순서를 검증했으며, 최종 CSV는 2,160개 측정 행을 포함합니다.
+
+30-trial median에서 `n=20000` random 입력은 Shell 1.932ms, Merge 1.423ms,
+Library 5.221ms였습니다. already-sorted 입력은 각각 0.266ms, 0.348ms,
+411.088ms였고 reverse-sorted 입력은 0.322ms, 0.332ms, 321.851ms였습니다.
+이 수치는 현재 실행 환경과 이번 deterministic Library Sort 변형에서 관측한
+결과입니다.
+
+### Benchmark 그래프
+
+네 입력 유형별 30-trial median과 Q1–Q3 범위입니다. x축은 입력 크기, y축은 공통
+로그 스케일이며, 세 알고리즘의 표시 방식은 모든 패널에서 동일합니다.
+
+![정렬 알고리즘별 입력 분포 성능: median 및 Q1–Q3](results/sorting-performance-median-iqr.png)
+
+아래 boxplot은 각 조건의 원 측정 30개와 변동 범위를 보여줍니다. 이상값을
+삭제하지 않았습니다. `Library Sort*`는 이번 과제의 deterministic educational
+variant를 뜻합니다.
+
+![정렬 benchmark trial 분포 boxplot](results/sorting-trial-boxplots.png)
+
+## Template 사용 안내
+
 2026-2 **고급알고리즘**(SIT2001-01)의 **실습 환경 template**입니다.
-컴파일러와 Python이 들어 있는 컨테이너, `src`/`tests` 뼈대, 그리고 그것이
-실제로 도는지 보여 주는 정렬 예제 하나가 들어 있습니다.
+컴파일러와 Python이 들어 있는 컨테이너, `src`/`tests` 뼈대, 그리고 병합 정렬과
+셸 정렬, Library Sort의 실행 시간을 비교하는 예제가 들어 있습니다.
 
 - 강의 자료: [lec-algorithm.github.io/lecture](https://lec-algorithm.github.io/lecture/)
 - 강의 예제 코드: [lec-algorithm/algorithm-code](https://github.com/lec-algorithm/algorithm-code)
@@ -66,11 +132,16 @@ make run
 - 결과
 
 ```console
-sorted: 1 2 3 4 5 6 7 8 9 10
-sorted: 1 2 3 4 5 6 7 8 9 10
+algorithm,input_size,distribution,trial,seed,elapsed_time_ns,correct
+shell,500,random,1,...,...,1
+merge,500,random,1,...,...,1
+library,500,random,1,...,...,1
+...
 ```
 
-C와 Python 두 구현이 같은 결과를 냅니다.
+C benchmark는 조건별 입력을 세 알고리즘에 공통으로 제공하고 결과를 검증합니다.
+시간은 실행 환경에 따라 달라지며, C와 Python의 측정값은 서로 직접 비교하지
+않습니다. `make run`은 C benchmark 뒤에 Python 예제도 실행합니다.
 
 ## 테스트
 
@@ -83,16 +154,13 @@ make test
 - 결과
 
 ```console
-ok    섞인 배열
-ok    이미 정렬된 배열
-ok    역순 배열
-ok    중복이 있는 배열
-ok    원소 하나
-ok    빈 배열
-
-6 checks, 0 failures
+ok    섞인 배열 (merge sort)
+ok    섞인 배열 (shell sort)
 ...
-Ran 7 tests in 0.001s
+
+24 checks, 0 failures
+...
+Ran 6 tests in 0.001s
 
 OK
 ```
