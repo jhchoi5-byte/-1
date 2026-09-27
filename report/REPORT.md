@@ -188,13 +188,13 @@ AI는 처음 접하는 알고리즘의 개념을 빠르게 파악하고 구현 �
 | Merge | 0.0183 | 0.0527 | 0.0778 | 0.2797 | 0.5201 | 0.8437 |
 | Library | 0.0832 | 0.3283 | 0.5640 | 4.0601 | 13.2993 | 30.4798 |
 
-![Figure 1. Distribution별 median execution time + IQR, 2×2 panel](../results/sorting-performance-median-iqr.png)
+![Figure 1. Distribution별 median execution time + IQR, 2×2 panel](sorting-performance-median-iqr.png)
 Figure 1의 y축에는 로그 스케일을 적용하였다. Library Sort와 나머지 알고리즘 사이의 실행시간 차이가 일부 조건에서 매우 크기 때문에 선형축에서는 Shell Sort와 Merge Sort의 차이를 확인하기 어렵기 때문이다. 각 점은 30회 측정의 median이며 오차 범위는 Q1–Q3를 나타낸다.
 ### 6.2 반복 측정의 변동성
 
 일부 조건에서는 평균값이 소수의 긴 실행시간에 크게 영향을 받는 현상이 관찰되었다. 72개 실험 그룹 중 24개 그룹에서는 mean과 median의 상대적 차이가 20% 이상이었다.
 따라서 본 실험에서는 실행시간의 대표값으로 median을 사용하였다. 측정값 자체를 제거하지 않았으며, 반복 측정의 분포를 확인하기 위해 boxplot을 추가로 사용하였다.
-![Figure 2. 30-trial execution-time boxplot](../results/sorting-trial-boxplots.png)
+![Figure 2. 30-trial execution-time boxplot](sorting-trial-boxplots.png)
 특히 매우 짧은 실행시간을 가진 일부 Shell Sort와 Merge Sort 조건에서는 상대적인 변동성이 크게 나타났다. 반면 Library Sort의 `n=20,000`, already-sorted 조건은 median 약 411.09 ms, mean 약 423.49 ms로 절대 실행시간은 매우 컸지만 반복 측정 자체는 상대적으로 안정적이었다.
 
 <hr>

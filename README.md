@@ -18,7 +18,7 @@
 | `tests/test_sort.c` | C 정렬 함수 테스트 |
 | `tests/test_sort.py` | Python `unittest` 정렬 테스트 |
 | `Makefile` | C 빌드 및 C/Python 테스트 실행 명령 |
-| `results/library-sort-final.csv` | 최종 30-trial C benchmark 원자료 |
+| `report/library-sort-final.csv` | 최종 30-trial C benchmark 원자료 |
 
 Library Sort는 AI를 활용해 알고리즘 원리를 먼저 학습한 뒤, 빈 공간에 삽입하고
 필요할 때 재배치하는 원리를 보여주는 **deterministic educational variant**로
@@ -35,7 +35,7 @@ C benchmark pilot을 실행했습니다. pilot 측정값을 분석한 뒤 timer 
 ```sh
 make test
 make src/main.out
-./src/main.out > results/library-sort-final.csv
+./src/main.out > report/library-sort-final.csv
 ```
 
 테스트 결과는 C **24 checks, 0 failures**, Python **6 tests 통과**입니다. 최종
@@ -56,13 +56,13 @@ Library 5.221ms였습니다. already-sorted 입력은 각각 0.266ms, 0.348ms,
 네 입력 유형별 30-trial median과 Q1–Q3 범위입니다. x축은 입력 크기, y축은 공통
 로그 스케일이며, 세 알고리즘의 표시 방식은 모든 패널에서 동일합니다.
 
-![정렬 알고리즘별 입력 분포 성능: median 및 Q1–Q3](results/sorting-performance-median-iqr.png)
+![정렬 알고리즘별 입력 분포 성능: median 및 Q1–Q3](report/sorting-performance-median-iqr.png)
 
 아래 boxplot은 각 조건의 원 측정 30개와 변동 범위를 보여줍니다. 이상값을
 삭제하지 않았습니다. `Library Sort*`는 이번 과제의 deterministic educational
 variant를 뜻합니다.
 
-![정렬 benchmark trial 분포 boxplot](results/sorting-trial-boxplots.png)
+![정렬 benchmark trial 분포 boxplot](report/sorting-trial-boxplots.png)
 
 ## Template 사용 안내
 
